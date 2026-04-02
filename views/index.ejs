@@ -16,35 +16,68 @@
     </nav>
 
     <main class="max-w-4xl mx-auto p-6">
+	
         <section class="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
-            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">⚽ Placer un nouveau pari</h3>
-            <form action="/bet" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <select name="match" class="bg-gray-900 border border-gray-600 p-2 rounded outline-none" required>
-				<option value="">-- Choisir un match --</option>
-				<% matches.forEach(match => { %>
-				<option value="<%= match.teams %>"><%= match.teams %></option>
-				<% }) %>
-				</select>
-                <input type="text" name="prediction" placeholder="Score (ex: 2-1)" class="bg-gray-900 border border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition">Parier !</button>
-            </form>
-        </section>
+    <h3 class="text-lg font-semibold mb-6 flex items-center gap-2">⚽ Placer un pronostic</h3>
+    
+    <form action="/bet" method="POST" class="space-y-6">
+        <div>
+            <label class="block text-sm text-gray-400 mb-2">Choisir le match :</label>
+            <select name="matchId" class="w-full bg-gray-900 border border-gray-600 p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
+                <% matches.forEach(match => { %>
+                    <option value="<%= match._id %>"><%= match.teams %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <label class="cursor-pointer group">
+                <input type="radio" name="prediction" value="1" class="hidden peer" required>
+                <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
+                    <span class="block text-2xl mb-1">🏠</span>
+                    <span class="text-sm font-bold">Victoire 1</span>
+                </div>
+            </label>
+
+            <label class="cursor-pointer group">
+                <input type="radio" name="prediction" value="N" class="hidden peer">
+                <div class="peer-checked:bg-gray-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
+                    <span class="block text-2xl mb-1">🤝</span>
+                    <span class="text-sm font-bold">Nul</span>
+                </div>
+            </label>
+
+            <label class="cursor-pointer group">
+                <input type="radio" name="prediction" value="2" class="hidden peer">
+                <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
+                    <span class="block text-2xl mb-1">🚀</span>
+                    <span class="text-sm font-bold">Victoire 2</span>
+                </div>
+            </label>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition">Valider mon pronostic</button>
+    </form>
+</section>
 
         <h3 class="text-xl font-bold mb-4 px-2">Paris en cours</h3>
         <div class="grid gap-4">
-            <% bets.reverse().forEach(bet => { %>
-                <div class="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-md flex justify-between items-center">
-                    <div>
-                        <p class="text-sm text-gray-400 uppercase font-bold"><%= bet.match %></p>
-                        <p class="text-xl font-mono text-blue-300"><%= bet.prediction %></p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-gray-500 italic">Parié par</p>
-                        <p class="font-semibold text-gray-200"><%= bet.user %></p>
-                    </div>
-                </div>
-            <% }) %>
+    <% bets.reverse().forEach(bet => { %>
+        <div class="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-r-xl flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-400 uppercase font-bold"><%= bet.match %></p>
+                <p class="text-lg"> Pronostic : 
+                    <span class="font-bold text-blue-400">
+                        <%= bet.prediction === '1' ? 'Équipe Domicile' : (bet.prediction === '2' ? 'Équipe Extérieur' : 'Match Nul') %>
+                    </span>
+                </p>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] bg-gray-700 px-2 py-1 rounded text-gray-400"><%= bet.user %></span>
+            </div>
         </div>
+    <% }) %>
+</div>
     </main>
 </body>
 </html>
