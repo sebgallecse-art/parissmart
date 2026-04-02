@@ -3,98 +3,82 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
-const path = require('path'); // Nécessaire pour gérer les chemins de dossiers
+const path = require('path');
 
-const app = express(); // <--- CETTE LIGNE DOIT ÊTRE AVANT TOUT LE RESTE !
+const app = express();
 
-// 1. Connexion MongoDB (Remplace avec TA string de connexion)
-const MONGO_URI = "mongodb+srv://sebgalle:0603734703aA!@cluster0.jq6f9sg.mongodb.net/?appName=Cluster0";
+// 1. Connexion MongoDB
+const MONGO_URI = "mongodb+srv://sebgalle:0603734703aA!@cluster0.jq6f9sg.mongodb.net/paris?retryWrites=true&w=majority";
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("Connecté à MongoDB !"))
-  .catch(err => console.error("Erreur de connexion :", err));
+  .then(() => console.log("✅ Connecté à MongoDB !"))
+  .catch(err => console.error("❌ Erreur de connexion :", err));
 
 // 2. Modèles de données
-const User = mongoose.model('User', { username: String, password: { type: String, required: true } });
-const Bet = mongoose.model('Bet', { user: String, match: String, prediction: String });
+const User = mongoose.model('User', { 
+    username: String, 
+    password: { type: String, required: true } 
+});
 
-// 3. Configuration sessions (stockées en DB pour ne pas être déco)
-app.use(session({
-    secret: 'secret-pari',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: MONGO_URI })
-}));
+const Bet = mongoose.model('Bet', { 
+    user: String, 
+    match: String, 
+    prediction: String 
+});
 
-// Maintenant tu peux configurer 'app' car elle est initialisée
+// 3. Configuration de l'application
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
 app.use(express.urlencoded({ extended: true }));
+
+// Configuration UNIQUE de la session
 app.use(session({
     secret: 'secret-key-pour-les-paris',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: MONGO_URI }),
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 heures
 }));
 
-// ... le reste de ton code (routes, etc.)
+// --- ROUTES ---
 
-// "Base de données" temporaire
-const users = [];
-const bets = [];
-
-// Middleware pour vérifier si l'utilisateur est connecté
-const isAuthenticated = (req, res, next) => {
-    if (req.session.user) return next();
-    res.redirect('/login');
-};
-
-// ROUTES
-app.get('/', async /*isAuthenticated*/, (req, res) => {
-    //res.render('index', { user: req.session.user, bets: bets });
-	if (!req.session.user) return res.redirect('/login');
-    const bets = await Bet.find(); // On récupère les paris en DB
-    res.render('index', { user: req.session.user, bets });
-	
+// Accueil (avec correction de la syntaxe async)
+app.get('/', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const betsFromDB = await Bet.find(); 
+        res.render('index', { user: req.session.user, bets: betsFromDB });
+    } catch (err) {
+        res.status(500).send("Erreur lors de la récupération des paris");
+    }
 });
 
 app.get('/login', (req, res) => res.render('login'));
 
+// Inscription
 app.post('/register', async (req, res) => {
     try {
         const { username, password } = req.body;
-        
-        // Vérifier si l'utilisateur existe déjà
         const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.send("Ce nom d'utilisateur est déjà pris.");
-        }
+        if (existingUser) return res.send("Ce nom d'utilisateur est déjà pris.");
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ 
-            username: username, 
-            password: hashedPassword 
-        });
-        
+        const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
-        console.log(`Nouvel utilisateur créé : ${username}`);
         res.redirect('/login');
     } catch (err) {
         res.status(500).send("Erreur lors de l'inscription");
     }
 });
 
-// --- CONNEXION ---
+// Connexion
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await User.findOne({ username });
 
         if (user && await bcrypt.compare(password, user.password)) {
-            // On stocke les infos importantes en session
-            req.session.user = { 
-                id: user._id, 
-                username: user.username 
-            };
+            req.session.user = { id: user._id, username: user.username };
             res.redirect('/');
         } else {
             res.send("Identifiants incorrects. <a href='/login'>Réessayer</a>");
@@ -104,25 +88,29 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// --- DÉCONNEXION ---
+// Paris (Correction : enregistrement dans MongoDB et pas dans un tableau vide)
+app.post('/bet', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const newBet = new Bet({ 
+            user: req.session.user.username, 
+            match: req.body.match, 
+            prediction: req.body.prediction 
+        });
+        await newBet.save();
+        res.redirect('/');
+    } catch (err) {
+        res.status(500).send("Erreur lors de l'enregistrement du pari");
+    }
+});
+
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
-app.post('/bet', isAuthenticated, (req, res) => {
-    bets.push({ 
-        user: req.session.user.username, 
-        match: req.body.match, 
-        prediction: req.body.prediction 
-    });
-    res.redirect('/');
-});
-
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Serveur lancé sur le port ${PORT}`));
-
-/*app.listen(3000, () => console.log('Serveur lancé sur http://localhost:3000'));*/
+app.listen(PORT, () => console.log(`🚀 Serveur lancé sur le port ${PORT}`));
 
 
 
