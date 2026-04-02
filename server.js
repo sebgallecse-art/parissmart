@@ -1,4 +1,7 @@
 const express = require('express');
+const path = require('path'); // N'oublie pas d'ajouter cette ligne !
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -53,7 +56,7 @@ app.post('/bet', isAuthenticated, (req, res) => {
     res.redirect('/');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Serveur lancé sur le port ${PORT}`));
 
 /*app.listen(3000, () => console.log('Serveur lancé sur http://localhost:3000'));*/
