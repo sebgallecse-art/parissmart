@@ -85,31 +85,24 @@
     
     selectMatch.addEventListener('change', function() {
         const matchText = this.options[this.selectedIndex].text;
-        
-        // On vérifie si c'est bien un match et pas le message par défaut
+        const icons = document.querySelectorAll('.block.text-6xl');
+
         if (!matchText || matchText.includes('--')) {
-            document.querySelectorAll('.block.text-6xl')[0].innerText = "🏠";
-            document.querySelectorAll('.block.text-6xl')[2].innerText = "🚀";
+            icons[0].innerText = "🏠";
+            icons[2].innerText = "🚀";
             return;
         }
 
-        // On découpe proprement en enlevant les espaces inutiles
-        const teams = matchText.split('-').map(t => t.trim());
+        const parts = matchText.split(' - ');
         
-        if (teams.length === 2) {
-            // On récupère le premier élément (l'emoji) de chaque équipe
-            // Array.from est crucial pour ne pas couper un emoji en deux
-            const team1Array = Array.from(teams[0]);
-            const team2Array = Array.from(teams[1]);
+        if (parts.length === 2) {
+            // On prend le premier caractère de chaque partie (l'emoji)
+            const f1 = Array.from(parts[0].trim())[0];
+            const f2 = Array.from(parts[1].trim())[0];
             
-            const flag1 = team1Array[0]; 
-            const flag2 = team2Array[0];
-            
-            const icons = document.querySelectorAll('.block.text-6xl');
-            
-            // On met à jour les icônes (avec une sécurité si flag est vide)
-            icons[0].innerText = flag1 || "🏠";
-            icons[2].innerText = flag2 || "🚀";
+            // Sécurité : si f1 ou f2 n'existe pas, on met l'icône par défaut
+            icons[0].innerText = f1 && f1.length > 0 ? f1 : "🏠";
+            icons[2].innerText = f2 && f2.length > 0 ? f2 : "🚀";
         }
     });
 </script>

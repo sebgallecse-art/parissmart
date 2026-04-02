@@ -155,13 +155,20 @@ app.post('/admin/delete/:id', async (req, res) => {
 });
 // Créer un match
 app.post('/admin/match', async (req, res) => {
-    // Si tu tapes "France" et "Italie" dans deux champs séparés
-    const { team1, team2, date } = req.body; 
-    const teamsWithFlags = `${getFlag(team1)} ${team1} - ${getFlag(team2)} ${team2}`;
-    
-    const newMatch = new Match({ teams: teamsWithFlags, date: date });
-    await newMatch.save();
-    res.redirect('back');
+    try {
+        const { team1, flag1, team2, flag2, date } = req.body;
+        // On crée un nom de match propre et facile à lire
+        const matchTitle = `${flag1 || '🏠'} ${team1} - ${flag2 || '🚀'} ${team2}`;
+        
+        const newMatch = new Match({ 
+            teams: matchTitle, 
+            date: date 
+        });
+        await newMatch.save();
+        res.redirect('back');
+    } catch (err) {
+        res.status(500).send("Erreur lors de la création du match");
+    }
 });
 
 // Supprimer un match
