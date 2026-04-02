@@ -22,10 +22,13 @@ const User = mongoose.model('User', {
     password: { type: String, required: true } 
 });
 
-const Bet = mongoose.model('Bet', { 
-    user: String, 
-    match: String, 
-    prediction: String 
+const Bet = mongoose.model('Bet', {
+    user: String,
+    matchId: String,
+    teams: String,   // Indispensable pour afficher le nom du match
+    code1: String,   // Indispensable pour le drapeau
+    code2: String,   // Indispensable pour le drapeau
+    prediction: String
 });
 const Match = mongoose.model('Match', { 
     teams: String, 
@@ -183,7 +186,7 @@ app.post('/admin/match', async (req, res) => {
         teams: `${team1} - ${team2}`,
         code1: code1.toLowerCase(),
         code2: code2.toLowerCase(),
-        date: date
+        date: date,
 		status: 'open'
     });
     await newMatch.save();
