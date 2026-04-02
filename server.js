@@ -131,6 +131,8 @@ app.post('/bet', async (req, res) => {
             user: req.session.user.username, 
             matchId: matchData._id, // Indispensable pour l'affichage visuel
             teams: matchData.teams, // ex: "🇫🇷 France - 🇩🇪 Allemagne"
+			code1: matchData.code1, // <--- Assure-toi que ces lignes sont présentes
+			code2: matchData.code2, // <--- Assure-toi que ces lignes sont présentes
             prediction: prediction // "1", "N" ou "2"
         });
         
