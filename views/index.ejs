@@ -22,14 +22,21 @@
             <form action="/bet" method="POST" class="space-y-8">
                 <div>
                     <label class="block text-xs uppercase text-gray-500 mb-2 font-bold">Choisir le match :</label>
-<select name="matchId" id="matchSelect" class="w-full ..." required>
+<select name="matchId" id="matchSelect" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl font-semibold text-white" required>
     <option value="">-- Sélectionnez un match --</option>
     <% matches.forEach(match => { 
-        <% matches.forEach(match => { %>
+        // On vérifie si l'ID du match est dans la liste des matchs déjà pariés
+        const alreadyBetted = bettedMatchIds.includes(match._id.toString());
+        
+        // On n'affiche le match QUE si l'utilisateur n'a pas encore parié dessus
+        if (!alreadyBetted) { 
+    %>
         <option value="<%= match._id %>" data-c1="<%= match.code1 %>" data-c2="<%= match.code2 %>">
             <%= match.teams %>
         </option>
-    <% }) %>
+    <% 
+        } // Fin du if
+    }) // Fin du forEach %>
 </select>
                 </div>
 
