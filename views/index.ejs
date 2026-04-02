@@ -1,31 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Paris entre Collègues</title>
-    <style>
-        body { font-family: sans-serif; margin: 40px; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Paris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="card">
-        <h1>Bienvenue, <%= user.username %> ! ⚽</h1>
-        
-        <h3>Placer un pari</h3>
-        <form action="/bet" method="POST">
-            <input type="text" name="match" placeholder="Match (ex: France - Brésil)" required>
-            <input type="text" name="prediction" placeholder="Ton score (ex: 2-1)" required>
-            <button type="submit">Parier</button>
-        </form>
+<body class="bg-gray-900 text-white min-h-screen">
+    <nav class="bg-gray-800 p-4 shadow-lg flex justify-between items-center">
+        <span class="text-xl font-bold italic text-blue-400">LIGUE DES COLLÈGUES</span>
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-300">Salut, <strong><%= user.username %></strong></span>
+            <a href="/logout" class="text-xs bg-red-900/50 hover:bg-red-800 px-3 py-1 rounded border border-red-500">Déconnexion</a>
+        </div>
+    </nav>
 
-        <hr>
+    <main class="max-w-4xl mx-auto p-6">
+        <section class="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">⚽ Placer un nouveau pari</h3>
+            <form action="/bet" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" name="match" placeholder="Match (ex: FRA - ARG)" class="bg-gray-900 border border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <input type="text" name="prediction" placeholder="Score (ex: 2-1)" class="bg-gray-900 border border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition">Parier !</button>
+            </form>
+        </section>
 
-        <h3>Tableau des paris</h3>
-        <ul>
-            <% bets.forEach(bet => { %>
-                <li><strong><%= bet.user %></strong> a parié <strong><%= bet.prediction %></strong> sur <strong><%= bet.match %></strong></li>
+        <h3 class="text-xl font-bold mb-4 px-2">Paris en cours</h3>
+        <div class="grid gap-4">
+            <% bets.reverse().forEach(bet => { %>
+                <div class="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-md flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-400 uppercase font-bold"><%= bet.match %></p>
+                        <p class="text-xl font-mono text-blue-300"><%= bet.prediction %></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 italic">Parié par</p>
+                        <p class="font-semibold text-gray-200"><%= bet.user %></p>
+                    </div>
+                </div>
             <% }) %>
-        </ul>
-    </div>
+        </div>
+    </main>
 </body>
 </html>
