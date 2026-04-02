@@ -53,7 +53,7 @@ app.post('/bet', isAuthenticated, (req, res) => {
     res.redirect('/');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Serveur lancé sur le port ${PORT}`));
 
 /*app.listen(3000, () => console.log('Serveur lancé sur http://localhost:3000'));*/
