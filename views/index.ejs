@@ -129,19 +129,47 @@
     </main>
 
     <script>
-    const select = document.getElementById('matchSelect');
-    const img1 = document.getElementById('flagImg1');
-    const img2 = document.getElementById('flagImg2');
+    function editBet(betId, matchId, prediction) {
+        // 1. On remplit le menu déroulant
+        const select = document.getElementById('matchSelect');
+        
+        // On force l'affichage du match même s'il était caché (car déjà parié)
+        // On crée une option temporaire si elle n'existe plus dans la liste
+        if (!select.querySelector(`option[value="${matchId}"]`)) {
+            const tempOpt = document.createElement('option');
+            tempOpt.value = matchId;
+            tempOpt.text = "Modifier ce match...";
+            select.add(tempOpt);
+        }
+        
+        select.value = matchId;
+        
+        // 2. On met à jour les drapeaux visuels en haut
+        select.dispatchEvent(new Event('change'));
 
-    select.addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        const c1 = opt.getAttribute('data-c1');
-        const c2 = opt.getAttribute('data-c2');
+        // 3. On coche le bon bouton radio (1, N ou 2)
+        const radio = document.querySelector(`input[name="prediction"][value="${prediction}"]`);
+        if (radio) radio.checked = true;
 
-        // On change la source de l'image dynamiquement
-        img1.src = c1 ? `https://flagcdn.com/w80/${c1}.png` : `https://flagcdn.com/w80/un.png`;
-        img2.src = c2 ? `https://flagcdn.com/w80/${c2}.png` : `https://flagcdn.com/w80/un.png`;
-    });
+        // 4. On prépare le formulaire pour une modification (pas une création)
+        let hiddenId = document.getElementById('editingBetId');
+        if (!hiddenId) {
+            hiddenId = document.createElement('input');
+            hiddenId.type = 'hidden';
+            hiddenId.name = 'betId';
+            hiddenId.id = 'editingBetId';
+            document.querySelector('form[action="/bet"]').appendChild(hiddenId);
+        }
+        hiddenId.value = betId;
+
+        // 5. On change le texte du bouton pour confirmer
+        const submitBtn = document.querySelector('form[action="/bet"] button[type="submit"]');
+        submitBtn.innerText = "Mettre à jour mon pronostic";
+        submitBtn.classList.replace('bg-blue-600', 'bg-yellow-600');
+
+        // 6. Remonter en haut de page doucement
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 </script>
 </body>
 </html>
