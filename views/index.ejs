@@ -22,12 +22,19 @@
             <form action="/bet" method="POST" class="space-y-8">
                 <div>
                     <label class="block text-xs uppercase text-gray-500 mb-2 font-bold">Choisir le match :</label>
-                    <select name="matchId" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl text-lg font-semibold" required>
-                        <option value="">-- Sélectionnez un match --</option>
-                        <% matches.forEach(match => { %>
-                            <option value="<%= match._id %>"><%= match.teams %></option>
-                        <% }) %>
-                    </select>
+                    <select name="matchId" id="matchSelect" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl text-lg font-semibold" required>
+    <option value="" data-f1="🏠" data-f2="🚀">-- Sélectionnez un match --</option>
+    <% matches.forEach(match => { 
+        // On sépare le nom pour extraire les drapeaux proprement
+        const parts = match.teams.split(' - ');
+        const f1 = (parts[0] ? Array.from(parts[0].trim())[0] : "🏠");
+        const f2 = (parts[1] ? Array.from(parts[1].trim())[0] : "🚀");
+    %>
+        <option value="<%= match._id %>" data-f1="<%= f1 %>" data-f2="<%= f2 %>">
+            <%= match.teams %>
+        </option>
+    <% }) %>
+</select>
                 </div>
 
                 <div class="grid grid-cols-3 gap-6">
@@ -81,28 +88,21 @@
     </main>
 
     <script>
-    const selectMatch = document.querySelector('select[name="matchId"]');
-    
-    selectMatch.addEventListener('change', function() {
-        const matchText = this.options[this.selectedIndex].text;
-        const icons = document.querySelectorAll('.block.text-6xl');
+    const select = document.getElementById('matchSelect');
+    const icons = document.querySelectorAll('.block.text-6xl');
 
-        if (!matchText || matchText.includes('--')) {
-            icons[0].innerText = "🏠";
-            icons[2].innerText = "🚀";
-            return;
-        }
-
-        const parts = matchText.split(' - ');
+    select.addEventListener('change', function() {
+        // On récupère l'option qui vient d'être cliquée
+        const selectedOption = this.options[this.selectedIndex];
         
-        if (parts.length === 2) {
-            // On prend le premier caractère de chaque partie (l'emoji)
-            const f1 = Array.from(parts[0].trim())[0];
-            const f2 = Array.from(parts[1].trim())[0];
-            
-            // Sécurité : si f1 ou f2 n'existe pas, on met l'icône par défaut
-            icons[0].innerText = f1 && f1.length > 0 ? f1 : "🏠";
-            icons[2].innerText = f2 && f2.length > 0 ? f2 : "🚀";
+        // On lit les drapeaux stockés dans "data-f1" et "data-f2"
+        const flag1 = selectedOption.getAttribute('data-f1');
+        const flag2 = selectedOption.getAttribute('data-f2');
+
+        // On met à jour les cercles bleus
+        if (icons.length >= 3) {
+            icons[0].innerText = flag1;
+            icons[2].innerText = flag2;
         }
     });
 </script>
