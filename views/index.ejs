@@ -81,25 +81,37 @@
     </main>
 
     <script>
-        // Ce script s'exécute quand l'utilisateur change de match
-        const selectMatch = document.querySelector('select[name="matchId"]');
+    const selectMatch = document.querySelector('select[name="matchId"]');
+    
+    selectMatch.addEventListener('change', function() {
+        const matchText = this.options[this.selectedIndex].text;
         
-        selectMatch.addEventListener('change', function() {
-            const matchText = this.options[this.selectedIndex].text;
+        // On vérifie si c'est bien un match et pas le message par défaut
+        if (!matchText || matchText.includes('--')) {
+            document.querySelectorAll('.block.text-6xl')[0].innerText = "🏠";
+            document.querySelectorAll('.block.text-6xl')[2].innerText = "🚀";
+            return;
+        }
+
+        // On découpe proprement en enlevant les espaces inutiles
+        const teams = matchText.split('-').map(t => t.trim());
+        
+        if (teams.length === 2) {
+            // On récupère le premier élément (l'emoji) de chaque équipe
+            // Array.from est crucial pour ne pas couper un emoji en deux
+            const team1Array = Array.from(teams[0]);
+            const team2Array = Array.from(teams[1]);
             
-            // On sépare le texte : "🇫🇷 France - 🇩🇪 Allemagne" -> ["🇫🇷 France ", " 🇩🇪 Allemagne"]
-            const teams = matchText.split(' - ');
+            const flag1 = team1Array[0]; 
+            const flag2 = team2Array[0];
             
-            if (teams.length === 2) {
-                // On extrait juste le premier caractère (l'emoji drapeau)
-                const flag1 = teams[0].substring(0, 2); // Un emoji fait souvent 2 caractères
-                const flag2 = teams[1].trim().substring(0, 2);
-                
-                // On met à jour les boutons
-                document.querySelectorAll('.block.text-6xl')[0].innerText = flag1; // Domicile
-                document.querySelectorAll('.block.text-6xl')[2].innerText = flag2; // Extérieur
-            }
-        });
-    </script>
+            const icons = document.querySelectorAll('.block.text-6xl');
+            
+            // On met à jour les icônes (avec une sécurité si flag est vide)
+            icons[0].innerText = flag1 || "🏠";
+            icons[2].innerText = flag2 || "🚀";
+        }
+    });
+</script>
 </body>
 </html>
