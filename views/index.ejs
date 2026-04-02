@@ -37,7 +37,6 @@
                         <input type="radio" name="prediction" value="1" class="hidden peer" required>
                         <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
 							<img id="flagImg1" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
-							<span class="text-sm font-bold">Victoire 1</span>
 						</div>
                     </label>
 
@@ -53,7 +52,6 @@
                         <input type="radio" name="prediction" value="2" class="hidden peer">
                         <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
 							<img id="flagImg2" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
-							<span class="text-sm font-bold">Victoire 1</span>
 						</div>
                     </label>
                 </div>
@@ -62,26 +60,55 @@
             </form>
         </section>
 
-        <section>
-            <h3 class="text-xl font-bold mb-6 px-2">Derniers Paris</h3>
-            <div class="grid gap-5">
-                <% bets.reverse().forEach(bet => { %>
-                    <div class="bg-gray-800 border-l-4 border-blue-500 p-5 rounded-r-2xl flex justify-between items-center shadow-lg">
-                        <div class="flex items-center gap-6">
-                            <span class="text-sm font-bold bg-gray-700 text-gray-300 px-3 py-1 rounded-full"><%= bet.user %></span>
-                            <div>
-                                <p class="text-xs text-gray-500 uppercase font-bold"><%= bet.teams %></p>
-                                <p class="text-lg"> Pronostic : 
-                                    <span class="font-black text-blue-400">
-                                        <%= bet.prediction === '1' ? 'Dom. (1)' : (bet.prediction === '2' ? 'Ext. (2)' : 'Nul (N)') %>
-                                    </span>
-                                </p>
-                            </div>
+        <section class="mt-10">
+    <div class="flex items-center justify-between mb-6 px-2">
+        <h3 class="text-xl font-bold text-blue-400">🔒 Mes Pronostics Secrets</h3>
+        <span class="text-xs bg-blue-900/30 text-blue-300 px-2 py-1 rounded-full border border-blue-800">Privé</span>
+    </div>
+
+    <div class="grid gap-4">
+        <% if (bets.length > 0) { %>
+            <% bets.forEach(bet => { %>
+                <div class="bg-gray-900 border border-gray-800 p-5 rounded-2xl flex justify-between items-center shadow-xl hover:border-gray-700 transition">
+                    <div class="flex items-center gap-5">
+                        <div class="flex flex-col items-center bg-gray-800 p-2 rounded-lg w-16">
+                            <% if(bet.prediction === '1') { %>
+                                <img src="https://flagcdn.com/w80/<%= bet.code1 %>.png" class="w-10 rounded shadow-sm mb-1">
+                                <span class="text-[10px] font-bold text-gray-400">DOM.</span>
+                            <% } else if(bet.prediction === '2') { %>
+                                <img src="https://flagcdn.com/w80/<%= bet.code2 %>.png" class="w-10 rounded shadow-sm mb-1">
+                                <span class="text-[10px] font-bold text-gray-400">EXT.</span>
+                            <% } else { %>
+                                <span class="text-2xl mb-1">🤝</span>
+                                <span class="text-[10px] font-bold text-gray-400">NUL</span>
+                            <% } %>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider"><%= bet.teams %></p>
+                            <p class="text-lg font-black text-white">
+                                <%= bet.prediction === '1' ? 'Victoire Domicile' : (bet.prediction === '2' ? 'Victoire Extérieur' : 'Match Nul') %>
+                            </p>
                         </div>
                     </div>
-                <% }) %>
+
+                    <button onclick="editBet('<%= bet._id %>', '<%= bet.matchId %>', '<%= bet.prediction %>')" 
+                            class="flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-bold px-4 py-2 rounded-xl border border-blue-500/20 transition-all">
+                        <span>Modifier</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="text-center py-10 bg-gray-900/50 rounded-3xl border border-dashed border-gray-800">
+                <p class="text-gray-500">Aucun pari enregistré pour le moment.</p>
+                <p class="text-xs text-gray-600 mt-1">Choisis un match ci-dessus pour commencer !</p>
             </div>
-        </section>
+        <% } %>
+    </div>
+</section>
     </main>
 
     <script>

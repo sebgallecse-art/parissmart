@@ -64,9 +64,22 @@ app.use(session({
 // Accueil (avec correction de la syntaxe async)
 app.get('/', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
-    const bets = await Bet.find().sort({ _id: -1 });
-    const matches = await Match.find({ status: 'open' }); // On ne montre que les matchs ouverts
-    res.render('index', { user: req.session.user, bets, matches });
+
+    try {
+        // On récupère uniquement les matchs encore ouverts
+        const matches = await Match.find({ status: 'open' });
+
+        // IMPORTANT : On ne récupère que les paris de l'utilisateur connecté
+        const myBets = await Bet.find({ user: req.session.user.username }).sort({ _id: -1 });
+
+        res.render('index', { 
+            user: req.session.user, 
+            matches: matches, 
+            bets: myBets // On n'envoie QUE ses paris à lui
+        });
+    } catch (err) {
+        res.status(500).send("Erreur de chargement");
+    }
 });
 
 app.get('/login', (req, res) => res.render('login'));
