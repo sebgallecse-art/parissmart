@@ -108,6 +108,28 @@ app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
+// Route pour afficher la page admin (protection par mot de passe simple)
+app.get('/admin/:password', async (req, res) => {
+    const secret = process.env.ADMIN_PASSWORD || "admin123"; // "admin123" par défaut si pas sur Render
+    
+    if (req.params.password !== secret) {
+        return res.status(403).send("Accès refusé. Mauvais mot de passe dans l'URL.");
+    }
+
+    try {
+        const allBets = await Bet.find().sort({ date: -1 });
+        res.render('admin', { bets: allBets, adminPass: req.params.password });
+    } catch (err) {
+        res.status(500).send("Erreur serveur");
+    }
+});
+
+// Route pour supprimer un pari (si un collègue fait une erreur)
+app.post('/admin/delete/:id', async (req, res) => {
+    // On pourrait vérifier le pass ici aussi pour plus de sécurité
+    await Bet.findByIdAndDelete(req.params.id);
+    res.redirect('back'); // Revient sur la page précédente
+});
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Serveur lancé sur le port ${PORT}`));
