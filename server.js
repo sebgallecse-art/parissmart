@@ -10,6 +10,8 @@ const app = express();
 // 1. Connexion MongoDB
 const MONGO_URI = "mongodb+srv://sebgalle:0603734703aA!@cluster0.jq6f9sg.mongodb.net/paris?retryWrites=true&w=majority";
 
+
+
 mongoose.connect(MONGO_URI)
   .then(() => console.log("✅ Connecté à MongoDB !"))
   .catch(err => console.error("❌ Erreur de connexion :", err));
@@ -31,6 +33,16 @@ const Match = mongoose.model('Match', {
     status: { type: String, default: 'open' }, // 'open' ou 'closed' (après le coup d'envoi)
     result: { type: String, default: null }    // Score final pour le calcul
 });
+
+function getFlag(country) {
+    const flags = {
+        "France": "🇫🇷", "Belgique": "🇧🇪", "Allemagne": "🇩🇪", 
+        "Espagne": "🇪🇸", "Italie": "🇮🇹", "Portugal": "🇵🇹", 
+        "Angleterre": "🇬🇧", "Argentine": "🇦🇷", "Bresil": "🇧🇷",
+        "Maroc": "🇲🇦", "Suisse": "🇨🇭"
+    };
+    return flags[country] || "🏳️"; // Drapeau blanc si inconnu
+}
 
 // 3. Configuration de l'application
 app.set('view engine', 'ejs');
@@ -143,7 +155,11 @@ app.post('/admin/delete/:id', async (req, res) => {
 });
 // Créer un match
 app.post('/admin/match', async (req, res) => {
-    const newMatch = new Match({ teams: req.body.teams, date: req.body.date });
+    // Si tu tapes "France" et "Italie" dans deux champs séparés
+    const { team1, team2, date } = req.body; 
+    const teamsWithFlags = `${getFlag(team1)} ${team1} - ${getFlag(team2)} ${team2}`;
+    
+    const newMatch = new Match({ teams: teamsWithFlags, date: date });
     await newMatch.save();
     res.redirect('back');
 });
