@@ -60,31 +60,54 @@ app.get('/', async /*isAuthenticated*/, (req, res) => {
 app.get('/login', (req, res) => res.render('login'));
 
 app.post('/register', async (req, res) => {
-    /*const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    users.push({ username: req.body.username, password: hashedPassword });
-    res.redirect('/login');*/
-	const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = new User({ username: req.body.username, password: hashedPassword });
-    await newUser.save();
-    res.redirect('/login');
+    try {
+        const { username, password } = req.body;
+        
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.send("Ce nom d'utilisateur est déjà pris.");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ 
+            username: username, 
+            password: hashedPassword 
+        });
+        
+        await newUser.save();
+        console.log(`Nouvel utilisateur créé : ${username}`);
+        res.redirect('/login');
+    } catch (err) {
+        res.status(500).send("Erreur lors de l'inscription");
+    }
 });
 
+// --- CONNEXION ---
 app.post('/login', async (req, res) => {
-    /*const user = users.find(u => u.username === req.body.username);
-    if (user && await bcrypt.compare(req.body.password, user.password)) {
-        req.session.user = user;
-        res.redirect('/');
-    } else {
-        res.send('Identifiants incorrects');
-    }*/
-	if (!req.session.user) return res.redirect('/login');
-    const newBet = new Bet({ 
-        user: req.session.user.username, 
-        match: req.body.match, 
-        prediction: req.body.prediction 
-    });
-    await newBet.save();
-    res.redirect('/');
+    try {
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+
+        if (user && await bcrypt.compare(password, user.password)) {
+            // On stocke les infos importantes en session
+            req.session.user = { 
+                id: user._id, 
+                username: user.username 
+            };
+            res.redirect('/');
+        } else {
+            res.send("Identifiants incorrects. <a href='/login'>Réessayer</a>");
+        }
+    } catch (err) {
+        res.status(500).send("Erreur lors de la connexion");
+    }
+});
+
+// --- DÉCONNEXION ---
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
 });
 
 app.post('/bet', isAuthenticated, (req, res) => {
