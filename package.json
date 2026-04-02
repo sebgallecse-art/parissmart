@@ -1,4 +1,4 @@
-{
+/*{
   "name": "site_git",
   "version": "1.0.0",
   "description": "",
@@ -23,5 +23,23 @@
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "express-session": "^1.19.0"
+  }
+}*/
+
+
+
+{
+  "name": "paris-collegues",
+  "version": "1.0.0",
+  "description": "Système de paris entre collègues",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3"
   }
 }
