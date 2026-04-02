@@ -65,7 +65,7 @@ app.use(session({
 app.get('/', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     
-    const matches = await Match.find({ status: 'open' });
+    const matches = await Match.find();
     const myBets = await Bet.find({ user: req.session.user.username });
     
     // On crée une liste simple des IDs de matchs déjà pariés
