@@ -25,6 +25,12 @@ const Bet = mongoose.model('Bet', {
     match: String, 
     prediction: String 
 });
+const Match = mongoose.model('Match', { 
+    teams: String,      // ex: "France - Argentine"
+    date: Date, 
+    status: { type: String, default: 'open' }, // 'open' ou 'closed' (après le coup d'envoi)
+    result: { type: String, default: null }    // Score final pour le calcul
+});
 
 // 3. Configuration de l'application
 app.set('view engine', 'ejs');
@@ -45,12 +51,9 @@ app.use(session({
 // Accueil (avec correction de la syntaxe async)
 app.get('/', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
-    try {
-        const betsFromDB = await Bet.find(); 
-        res.render('index', { user: req.session.user, bets: betsFromDB });
-    } catch (err) {
-        res.status(500).send("Erreur lors de la récupération des paris");
-    }
+    const bets = await Bet.find().sort({ _id: -1 });
+    const matches = await Match.find({ status: 'open' }); // On ne montre que les matchs ouverts
+    res.render('index', { user: req.session.user, bets, matches });
 });
 
 app.get('/login', (req, res) => res.render('login'));
@@ -129,6 +132,18 @@ app.post('/admin/delete/:id', async (req, res) => {
     // On pourrait vérifier le pass ici aussi pour plus de sécurité
     await Bet.findByIdAndDelete(req.params.id);
     res.redirect('back'); // Revient sur la page précédente
+});
+// Créer un match
+app.post('/admin/match', async (req, res) => {
+    const newMatch = new Match({ teams: req.body.teams, date: req.body.date });
+    await newMatch.save();
+    res.redirect('back');
+});
+
+// Supprimer un match
+app.post('/admin/match/delete/:id', async (req, res) => {
+    await Match.findByIdAndDelete(req.params.id);
+    res.redirect('back');
 });
 
 const PORT = process.env.PORT || 10000;

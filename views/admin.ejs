@@ -5,6 +5,14 @@
     <title>Administration - Paris</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<section class="bg-gray-800 p-6 rounded-xl mb-8 border border-red-500/20">
+    <h2 class="text-xl font-bold mb-4">🆕 Créer un Match</h2>
+    <form action="/admin/match" method="POST" class="flex gap-4">
+        <input type="text" name="teams" placeholder="Équipes (ex: PSG - OM)" class="flex-1 bg-gray-900 p-2 rounded border border-gray-600" required>
+        <input type="datetime-local" name="date" class="bg-gray-900 p-2 rounded border border-gray-600" required>
+        <button type="submit" class="bg-green-600 px-4 py-2 rounded font-bold hover:bg-green-500">Ajouter</button>
+    </form>
+</section>
 <body class="bg-gray-900 text-white p-8">
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center mb-8">

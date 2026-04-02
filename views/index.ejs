@@ -19,7 +19,12 @@
         <section class="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
             <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">⚽ Placer un nouveau pari</h3>
             <form action="/bet" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" name="match" placeholder="Match (ex: FRA - ARG)" class="bg-gray-900 border border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <select name="match" class="bg-gray-900 border border-gray-600 p-2 rounded outline-none" required>
+				<option value="">-- Choisir un match --</option>
+				<% matches.forEach(match => { %>
+				<option value="<%= match.teams %>"><%= match.teams %></option>
+				<% }) %>
+				</select>
                 <input type="text" name="prediction" placeholder="Score (ex: 2-1)" class="bg-gray-900 border border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition">Parier !</button>
             </form>
