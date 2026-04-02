@@ -94,14 +94,24 @@
                         <p class="text-2xl font-black text-white mb-1"><%= bet.teams %></p>
                         
                         <p class="text-xs text-blue-400 font-semibold flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                            </svg>
-                            Vous avez parié : 
-                            <span class="font-black uppercase">
-                                <%= bet.prediction === '1' ? 'Victoire Domicile' : (bet.prediction === '2' ? 'Victoire Extérieur' : 'Match Nul') %>
-                            </span>
-                        </p>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+    </svg>
+    Vous avez parié : 
+    <span class="font-black uppercase text-white ml-1">
+        <% 
+            // On découpe le nom du match "France - Italie" pour avoir les deux noms séparés
+            const teamNames = bet.teams.split(' - ');
+            if (bet.prediction === '1') { %>
+                <%= teamNames[0] %>
+            <% } else if (bet.prediction === '2') { %>
+                <%= teamNames[1] %>
+            <% } else { %>
+                Match Nul
+            <% } 
+        %>
+    </span>
+</p>
                     </div>
                 </div>
 
