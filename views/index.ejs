@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paris entre Collègues</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Bienvenue, <%= user.username %> ! ⚽</h1>
+        
+        <h3>Placer un pari</h3>
+        <form action="/bet" method="POST">
+            <input type="text" name="match" placeholder="Match (ex: France - Brésil)" required>
+            <input type="text" name="prediction" placeholder="Ton score (ex: 2-1)" required>
+            <button type="submit">Parier</button>
+        </form>
+
+        <hr>
+
+        <h3>Tableau des paris</h3>
+        <ul>
+            <% bets.forEach(bet => { %>
+                <li><strong><%= bet.user %></strong> a parié <strong><%= bet.prediction %></strong> sur <strong><%= bet.match %></strong></li>
+            <% }) %>
+        </ul>
+    </div>
+</body>
+</html>
