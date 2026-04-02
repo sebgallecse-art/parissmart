@@ -69,7 +69,9 @@ app.get('/', async (req, res) => {
     const myBets = await Bet.find({ user: req.session.user.username });
     
     // On crée une liste simple des IDs de matchs déjà pariés
-    const bettedMatchIds = myBets.map(b => b.matchId.toString());
+    const bettedMatchIds = myBets
+    .filter(b => b.matchId) 
+    .map(b => b.matchId.toString());
 
     res.render('index', { 
         user: req.session.user, 
