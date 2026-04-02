@@ -3,81 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord - Paris</title>
+    <title>Ligue des Collègues - Paris 1N2</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <nav class="bg-gray-800 p-4 shadow-lg flex justify-between items-center">
-        <span class="text-xl font-bold italic text-blue-400">LIGUE DES COLLÈGUES</span>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="bg-gray-800 p-4 shadow-lg border-b border-gray-700 flex justify-between items-center">
+        <span class="text-xl font-black italic text-blue-400">🏆 LIGUE</span>
         <div class="flex items-center gap-4">
-            <span class="text-sm text-gray-300">Salut, <strong><%= user.username %></strong></span>
-            <a href="/logout" class="text-xs bg-red-900/50 hover:bg-red-800 px-3 py-1 rounded border border-red-500">Déconnexion</a>
+            <span class="text-sm">Salut, <strong><%= user.username %></strong></span>
+            <a href="/logout" class="text-xs bg-red-900/50 hover:bg-red-800 px-3 py-1 rounded">Déconnexion</a>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto p-6">
-	
-        <section class="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
-    <h3 class="text-lg font-semibold mb-6 flex items-center gap-2">⚽ Placer un pronostic</h3>
-    
-    <form action="/bet" method="POST" class="space-y-6">
-        <div>
-            <label class="block text-sm text-gray-400 mb-2">Choisir le match :</label>
-            <select name="matchId" class="w-full bg-gray-900 border border-gray-600 p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
-                <% matches.forEach(match => { %>
-                    <option value="<%= match._id %>"><%= match.teams %></option>
+    <main class="max-w-4xl mx-auto p-6 space-y-10">
+        <section class="bg-gray-900 p-8 rounded-3xl border border-gray-800 shadow-2xl">
+            <h3 class="text-xl font-bold mb-8 flex items-center gap-3">⚽ Placer un pronostic 1N2</h3>
+            
+            <form action="/bet" method="POST" class="space-y-8">
+                <div>
+                    <label class="block text-xs uppercase text-gray-500 mb-2 font-bold">Choisir le match :</label>
+                    <select name="matchId" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl text-lg font-semibold" required>
+                        <option value="">-- Sélectionnez un match --</option>
+                        <% matches.forEach(match => { %>
+                            <option value="<%= match._id %>"><%= match.teams %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="prediction" value="1" class="hidden peer" required>
+                        <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-800 border-2 border-gray-700 p-6 rounded-2xl text-center transition group-hover:bg-gray-700 h-full">
+                            <span class="block text-6xl mb-4">🏠</span> <span class="text-base font-bold text-gray-300 peer-checked:text-white">Dom. (1)</span>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="prediction" value="N" class="hidden peer">
+                        <div class="peer-checked:bg-gray-600 peer-checked:border-transparent bg-gray-800 border-2 border-gray-700 p-6 rounded-2xl text-center transition group-hover:bg-gray-700 h-full">
+                            <span class="block text-6xl mb-4">🤝</span>
+                            <span class="text-base font-bold text-gray-300 peer-checked:text-white">Nul (N)</span>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="prediction" value="2" class="hidden peer">
+                        <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-800 border-2 border-gray-700 p-6 rounded-2xl text-center transition group-hover:bg-gray-700 h-full">
+                            <span class="block text-6xl mb-4">🚀</span> <span class="text-base font-bold text-gray-300 peer-checked:text-white">Ext. (2)</span>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl shadow-lg transition text-lg uppercase">Valider mon pari</button>
+            </form>
+        </section>
+
+        <section>
+            <h3 class="text-xl font-bold mb-6 px-2">Derniers Paris</h3>
+            <div class="grid gap-5">
+                <% bets.reverse().forEach(bet => { %>
+                    <div class="bg-gray-800 border-l-4 border-blue-500 p-5 rounded-r-2xl flex justify-between items-center shadow-lg">
+                        <div class="flex items-center gap-6">
+                            <span class="text-sm font-bold bg-gray-700 text-gray-300 px-3 py-1 rounded-full"><%= bet.user %></span>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-bold"><%= bet.teams %></p>
+                                <p class="text-lg"> Pronostic : 
+                                    <span class="font-black text-blue-400">
+                                        <%= bet.prediction === '1' ? 'Dom. (1)' : (bet.prediction === '2' ? 'Ext. (2)' : 'Nul (N)') %>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 <% }) %>
-            </select>
-        </div>
-
-        <div class="grid grid-cols-3 gap-4">
-            <label class="cursor-pointer group">
-                <input type="radio" name="prediction" value="1" class="hidden peer" required>
-                <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
-                    <span class="block text-2xl mb-1">🏠</span>
-                    <span class="text-sm font-bold">Victoire 1</span>
-                </div>
-            </label>
-
-            <label class="cursor-pointer group">
-                <input type="radio" name="prediction" value="N" class="hidden peer">
-                <div class="peer-checked:bg-gray-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
-                    <span class="block text-2xl mb-1">🤝</span>
-                    <span class="text-sm font-bold">Nul</span>
-                </div>
-            </label>
-
-            <label class="cursor-pointer group">
-                <input type="radio" name="prediction" value="2" class="hidden peer">
-                <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-900 border border-gray-600 p-4 rounded-xl text-center transition group-hover:bg-gray-700">
-                    <span class="block text-2xl mb-1">🚀</span>
-                    <span class="text-sm font-bold">Victoire 2</span>
-                </div>
-            </label>
-        </div>
-
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition">Valider mon pronostic</button>
-    </form>
-</section>
-
-        <h3 class="text-xl font-bold mb-4 px-2">Paris en cours</h3>
-        <div class="grid gap-4">
-    <% bets.reverse().forEach(bet => { %>
-        <div class="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-r-xl flex justify-between items-center">
-            <div>
-                <p class="text-xs text-gray-400 uppercase font-bold"><%= bet.match %></p>
-                <p class="text-lg"> Pronostic : 
-                    <span class="font-bold text-blue-400">
-                        <%= bet.prediction === '1' ? 'Équipe Domicile' : (bet.prediction === '2' ? 'Équipe Extérieur' : 'Match Nul') %>
-                    </span>
-                </p>
             </div>
-            <div class="text-right">
-                <span class="text-[10px] bg-gray-700 px-2 py-1 rounded text-gray-400"><%= bet.user %></span>
-            </div>
-        </div>
-    <% }) %>
-</div>
+        </section>
     </main>
+
+    <script>
+        // Ce script s'exécute quand l'utilisateur change de match
+        const selectMatch = document.querySelector('select[name="matchId"]');
+        
+        selectMatch.addEventListener('change', function() {
+            const matchText = this.options[this.selectedIndex].text;
+            
+            // On sépare le texte : "🇫🇷 France - 🇩🇪 Allemagne" -> ["🇫🇷 France ", " 🇩🇪 Allemagne"]
+            const teams = matchText.split(' - ');
+            
+            if (teams.length === 2) {
+                // On extrait juste le premier caractère (l'emoji drapeau)
+                const flag1 = teams[0].substring(0, 2); // Un emoji fait souvent 2 caractères
+                const flag2 = teams[1].trim().substring(0, 2);
+                
+                // On met à jour les boutons
+                document.querySelectorAll('.block.text-6xl')[0].innerText = flag1; // Domicile
+                document.querySelectorAll('.block.text-6xl')[2].innerText = flag2; // Extérieur
+            }
+        });
+    </script>
 </body>
 </html>

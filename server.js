@@ -96,13 +96,16 @@ app.post('/bet', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     
     try {
-        // On récupère le nom du match via son ID pour l'affichage
-        const matchData = await Match.findById(req.body.matchId);
+        const { matchId, prediction } = req.body;
+        
+        // On récupère le match pour avoir les noms et drapeaux
+        const matchData = await Match.findById(matchId);
         
         const newBet = new Bet({ 
             user: req.session.user.username, 
-            match: matchData.teams, // Stocke le nom (ex: "France - Italie")
-            prediction: req.body.prediction // Stockera "1", "N" ou "2"
+            matchId: matchData._id, // Indispensable pour l'affichage visuel
+            teams: matchData.teams, // ex: "🇫🇷 France - 🇩🇪 Allemagne"
+            prediction: prediction // "1", "N" ou "2"
         });
         
         await newBet.save();
