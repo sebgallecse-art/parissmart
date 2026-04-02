@@ -22,15 +22,10 @@
             <form action="/bet" method="POST" class="space-y-8">
                 <div>
                     <label class="block text-xs uppercase text-gray-500 mb-2 font-bold">Choisir le match :</label>
-                    <select name="matchId" id="matchSelect" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl text-lg font-semibold" required>
-    <option value="" data-f1="🏠" data-f2="🚀">-- Sélectionnez un match --</option>
-    <% matches.forEach(match => { 
-        // On sépare le nom pour extraire les drapeaux proprement
-        const parts = match.teams.split(' - ');
-        const f1 = (parts[0] ? Array.from(parts[0].trim())[0] : "🏠");
-        const f2 = (parts[1] ? Array.from(parts[1].trim())[0] : "🚀");
-    %>
-        <option value="<%= match._id %>" data-f1="<%= f1 %>" data-f2="<%= f2 %>">
+<select name="matchId" id="matchSelect" class="w-full bg-gray-800 border border-gray-700 p-4 rounded-xl font-semibold text-white" required>
+    <option value="" data-c1="" data-c2="">-- Choisissez un match --</option>
+    <% matches.forEach(match => { %>
+        <option value="<%= match._id %>" data-c1="<%= match.code1 %>" data-c2="<%= match.code2 %>">
             <%= match.teams %>
         </option>
     <% }) %>
@@ -40,9 +35,10 @@
                 <div class="grid grid-cols-3 gap-6">
                     <label class="cursor-pointer group">
                         <input type="radio" name="prediction" value="1" class="hidden peer" required>
-                        <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-800 border-2 border-gray-700 p-6 rounded-2xl text-center transition group-hover:bg-gray-700 h-full">
-                            <span class="block text-6xl mb-4">🏠</span> <span class="text-base font-bold text-gray-300 peer-checked:text-white">Dom. (1)</span>
-                        </div>
+                        <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
+							<img id="flagImg1" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
+							<span class="text-sm font-bold">Victoire 1</span>
+						</div>
                     </label>
 
                     <label class="cursor-pointer group">
@@ -55,9 +51,10 @@
 
                     <label class="cursor-pointer group">
                         <input type="radio" name="prediction" value="2" class="hidden peer">
-                        <div class="peer-checked:bg-blue-600 peer-checked:border-transparent bg-gray-800 border-2 border-gray-700 p-6 rounded-2xl text-center transition group-hover:bg-gray-700 h-full">
-                            <span class="block text-6xl mb-4">🚀</span> <span class="text-base font-bold text-gray-300 peer-checked:text-white">Ext. (2)</span>
-                        </div>
+                        <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
+							<img id="flagImg2" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
+							<span class="text-sm font-bold">Victoire 1</span>
+						</div>
                     </label>
                 </div>
 
@@ -89,21 +86,17 @@
 
     <script>
     const select = document.getElementById('matchSelect');
-    const icons = document.querySelectorAll('.block.text-6xl');
+    const img1 = document.getElementById('flagImg1');
+    const img2 = document.getElementById('flagImg2');
 
     select.addEventListener('change', function() {
-        // On récupère l'option qui vient d'être cliquée
-        const selectedOption = this.options[this.selectedIndex];
-        
-        // On lit les drapeaux stockés dans "data-f1" et "data-f2"
-        const flag1 = selectedOption.getAttribute('data-f1');
-        const flag2 = selectedOption.getAttribute('data-f2');
+        const opt = this.options[this.selectedIndex];
+        const c1 = opt.getAttribute('data-c1');
+        const c2 = opt.getAttribute('data-c2');
 
-        // On met à jour les cercles bleus
-        if (icons.length >= 3) {
-            icons[0].innerText = flag1;
-            icons[2].innerText = flag2;
-        }
+        // On change la source de l'image dynamiquement
+        img1.src = c1 ? `https://flagcdn.com/w80/${c1}.png` : `https://flagcdn.com/w80/un.png`;
+        img2.src = c2 ? `https://flagcdn.com/w80/${c2}.png` : `https://flagcdn.com/w80/un.png`;
     });
 </script>
 </body>

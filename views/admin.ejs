@@ -8,17 +8,17 @@
 <section class="bg-gray-800 p-6 rounded-xl mb-8 border border-red-500/20">
     <h2 class="text-xl font-bold mb-4 text-red-400">🆕 Créer un Match</h2>
     <form action="/admin/match" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex gap-2">
-            <input type="text" name="flag1" placeholder="🚩" class="w-12 bg-gray-900 p-2 rounded border border-gray-600 text-center text-xl">
-            <input type="text" name="team1" placeholder="Équipe Domicile" class="flex-1 bg-gray-900 p-2 rounded border border-gray-600" required>
-        </div>
-        <div class="flex gap-2">
-            <input type="text" name="flag2" placeholder="🚀" class="w-12 bg-gray-900 p-2 rounded border border-gray-600 text-center text-xl">
-            <input type="text" name="team2" placeholder="Équipe Extérieur" class="flex-1 bg-gray-900 p-2 rounded border border-gray-600" required>
-        </div>
-        <input type="datetime-local" name="date" class="bg-gray-900 p-2 rounded border border-gray-600 w-full" required>
-        <button type="submit" class="bg-green-600 py-2 rounded font-black hover:bg-green-500 uppercase tracking-widest">Ajouter le match</button>
-    </form>
+    <div class="flex gap-2">
+        <input type="text" name="code1" placeholder="Code (ex: fr)" class="w-16 bg-gray-900 p-2 rounded border border-gray-600 text-center uppercase" maxlength="2">
+        <input type="text" name="team1" placeholder="Équipe Domicile" class="flex-1 bg-gray-900 p-2 rounded border border-gray-600" required>
+    </div>
+    <div class="flex gap-2">
+        <input type="text" name="code2" placeholder="Code (ex: de)" class="w-16 bg-gray-900 p-2 rounded border border-gray-600 text-center uppercase" maxlength="2">
+        <input type="text" name="team2" placeholder="Équipe Extérieur" class="flex-1 bg-gray-900 p-2 rounded border border-gray-600" required>
+    </div>
+    <input type="datetime-local" name="date" class="bg-gray-900 p-2 rounded border border-gray-600 w-full" required>
+    <button type="submit" class="bg-green-600 py-2 rounded font-black hover:bg-green-500 uppercase">Ajouter</button>
+</form>
 </section>
 <body class="bg-gray-900 text-white p-8">
     <div class="max-w-4xl mx-auto">

@@ -28,10 +28,11 @@ const Bet = mongoose.model('Bet', {
     prediction: String 
 });
 const Match = mongoose.model('Match', { 
-    teams: String,      // ex: "France - Argentine"
+    teams: String, 
+    code1: String, // ex: fr
+    code2: String, // ex: de
     date: Date, 
-    status: { type: String, default: 'open' }, // 'open' ou 'closed' (après le coup d'envoi)
-    result: { type: String, default: null }    // Score final pour le calcul
+    status: { type: String, default: 'open' } 
 });
 
 function getFlag(country) {
@@ -155,20 +156,15 @@ app.post('/admin/delete/:id', async (req, res) => {
 });
 // Créer un match
 app.post('/admin/match', async (req, res) => {
-    try {
-        const { team1, flag1, team2, flag2, date } = req.body;
-        // On crée un nom de match propre et facile à lire
-        const matchTitle = `${flag1 || '🏠'} ${team1} - ${flag2 || '🚀'} ${team2}`;
-        
-        const newMatch = new Match({ 
-            teams: matchTitle, 
-            date: date 
-        });
-        await newMatch.save();
-        res.redirect('back');
-    } catch (err) {
-        res.status(500).send("Erreur lors de la création du match");
-    }
+    const { team1, code1, team2, code2, date } = req.body;
+    const newMatch = new Match({ 
+        teams: `${team1} - ${team2}`,
+        code1: code1.toLowerCase(),
+        code2: code2.toLowerCase(),
+        date: date
+    });
+    await newMatch.save();
+    res.redirect('back');
 });
 
 // Supprimer un match
