@@ -64,22 +64,19 @@ app.use(session({
 // Accueil (avec correction de la syntaxe async)
 app.get('/', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
+    
+    const matches = await Match.find({ status: 'open' });
+    const myBets = await Bet.find({ user: req.session.user.username });
+    
+    // On crée une liste simple des IDs de matchs déjà pariés
+    const bettedMatchIds = myBets.map(b => b.matchId.toString());
 
-    try {
-        // On récupère uniquement les matchs encore ouverts
-        const matches = await Match.find({ status: 'open' });
-
-        // IMPORTANT : On ne récupère que les paris de l'utilisateur connecté
-        const myBets = await Bet.find({ user: req.session.user.username }).sort({ _id: -1 });
-
-        res.render('index', { 
-            user: req.session.user, 
-            matches: matches, 
-            bets: myBets // On n'envoie QUE ses paris à lui
-        });
-    } catch (err) {
-        res.status(500).send("Erreur de chargement");
-    }
+    res.render('index', { 
+        user: req.session.user, 
+        matches: matches, 
+        bets: myBets,
+        bettedMatchIds: bettedMatchIds // On envoie ça à la vue
+    });
 });
 
 app.get('/login', (req, res) => res.render('login'));
@@ -122,24 +119,46 @@ app.post('/bet', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     
     try {
-        const { matchId, prediction } = req.body;
-        
-        // On récupère le match pour avoir les noms et drapeaux
+        const { matchId, prediction, betId } = req.body;
+        const username = req.session.user.username;
+
+        // 1. Vérifier si l'utilisateur a déjà parié sur ce match (uniquement pour les NOUVEAUX paris)
+        if (!betId) {
+            const existingBet = await Bet.findOne({ user: username, matchId: matchId });
+            
+            if (existingBet) {
+                // Si un pari existe déjà, on ne fait rien et on renvoie à l'accueil
+                // Optionnel : tu peux ajouter un message d'erreur ici
+                return res.redirect('/?error=deja_parie');
+            }
+        }
+
         const matchData = await Match.findById(matchId);
+
+        if (betId) {
+            // MODE MODIFICATION (Autorisé car c'est le même pari qu'on met à jour)
+            await Bet.findByIdAndUpdate(betId, {
+                prediction: prediction,
+                teams: matchData.teams,
+                code1: matchData.code1,
+                code2: matchData.code2
+            });
+        } else {
+            // MODE CRÉATION
+            const newBet = new Bet({ 
+                user: username, 
+                matchId: matchId,
+                teams: matchData.teams,
+                code1: matchData.code1,
+                code2: matchData.code2,
+                prediction: prediction 
+            });
+            await newBet.save();
+        }
         
-        const newBet = new Bet({ 
-            user: req.session.user.username, 
-            matchId: matchData._id, // Indispensable pour l'affichage visuel
-            teams: matchData.teams, // ex: "🇫🇷 France - 🇩🇪 Allemagne"
-			code1: matchData.code1, // <--- Assure-toi que ces lignes sont présentes
-			code2: matchData.code2, // <--- Assure-toi que ces lignes sont présentes
-            prediction: prediction // "1", "N" ou "2"
-        });
-        
-        await newBet.save();
         res.redirect('/');
     } catch (err) {
-        res.status(500).send("Erreur lors du pari");
+        res.status(500).send("Erreur lors de l'enregistrement");
     }
 });
 
