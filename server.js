@@ -1,18 +1,22 @@
 const express = require('express');
-const path = require('path'); // N'oublie pas d'ajouter cette ligne !
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const app = express();
+const path = require('path'); // Nécessaire pour gérer les chemins de dossiers
 
+const app = express(); // <--- CETTE LIGNE DOIT ÊTRE AVANT TOUT LE RESTE !
+
+// Maintenant tu peux configurer 'app' car elle est initialisée
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: 'secret-key-pour-les-paris',
     resave: false,
     saveUninitialized: true
 }));
+
+// ... le reste de ton code (routes, etc.)
 
 // "Base de données" temporaire
 const users = [];
