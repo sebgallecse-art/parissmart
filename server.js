@@ -118,49 +118,35 @@ app.post('/login', async (req, res) => {
 
 // Paris (Correction : enregistrement dans MongoDB et pas dans un tableau vide)
 app.post('/bet', async (req, res) => {
-    if (!req.session.user) return res.redirect('/login');
-    
     try {
         const { matchId, prediction, betId } = req.body;
-        const username = req.session.user.username;
-
-        // 1. Vérifier si l'utilisateur a déjà parié sur ce match (uniquement pour les NOUVEAUX paris)
-        if (!betId) {
-            const existingBet = await Bet.findOne({ user: username, matchId: matchId });
-            
-            if (existingBet) {
-                // Si un pari existe déjà, on ne fait rien et on renvoie à l'accueil
-                // Optionnel : tu peux ajouter un message d'erreur ici
-                return res.redirect('/?error=deja_parie');
-            }
-        }
-
-        const matchData = await Match.findById(matchId);
+        
+        // On récupère les infos du match pour les copier dans le pari
+        const matchData = await Match.findById(matchId); 
 
         if (betId) {
-            // MODE MODIFICATION (Autorisé car c'est le même pari qu'on met à jour)
+            // Mise à jour
             await Bet.findByIdAndUpdate(betId, {
                 prediction: prediction,
-                teams: matchData.teams,
-                code1: matchData.code1,
-                code2: matchData.code2
+                teams: matchData.teams, // On enregistre le nom ici
+                code1: matchData.code1, // On enregistre le code pays ici
+                code2: matchData.code2  // On enregistre le code pays ici
             });
         } else {
-            // MODE CRÉATION
+            // Nouveau pari
             const newBet = new Bet({ 
-                user: username, 
+                user: req.session.user.username, 
                 matchId: matchId,
-                teams: matchData.teams,
-                code1: matchData.code1,
-                code2: matchData.code2,
+                teams: matchData.teams, // CRUCIAL
+                code1: matchData.code1, // CRUCIAL
+                code2: matchData.code2, // CRUCIAL
                 prediction: prediction 
             });
             await newBet.save();
         }
-        
         res.redirect('/');
     } catch (err) {
-        res.status(500).send("Erreur lors de l'enregistrement");
+        res.status(500).send("Erreur");
     }
 });
 
@@ -198,6 +184,7 @@ app.post('/admin/match', async (req, res) => {
         code1: code1.toLowerCase(),
         code2: code2.toLowerCase(),
         date: date
+		status: 'open'
     });
     await newMatch.save();
     res.redirect('back');
