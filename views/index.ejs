@@ -130,49 +130,30 @@
     </main>
 
     <script>
-    function editBet(betId, matchId, prediction, c1, c2) { // On ajoute c1 et c2 ici
-        const select = document.getElementById('matchSelect');
-        
-        // 1. Chercher si l'option existe déjà, sinon la créer avec ses drapeaux
-        let option = select.querySelector(`option[value="${matchId}"]`);
-        
-        if (!option) {
-            option = document.createElement('option');
-            option.value = matchId;
-            option.text = "Modifier ce match...";
-            // IMPORTANT : On lui donne les codes pays pour que les images s'affichent
-            option.setAttribute('data-c1', c1);
-            option.setAttribute('data-c2', c2);
-            select.add(option);
+    <script>
+    document.getElementById('matchSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const c1 = selectedOption.getAttribute('data-c1');
+        const c2 = selectedOption.getAttribute('data-c2');
+
+        const flag1 = document.getElementById('flag1');
+        const flag2 = document.getElementById('flag2');
+
+        if (c1 && c2) {
+            // On met à jour les images avec les codes pays
+            flag1.src = `https://flagcdn.com/w80/${c1.toLowerCase()}.png`;
+            flag2.src = `https://flagcdn.com/w80/${c2.toLowerCase()}.png`;
+            
+            // On affiche les drapeaux (au cas où ils étaient cachés)
+            flag1.style.display = 'block';
+            flag2.style.display = 'block';
+        } else {
+            // Si pas de sélection, on peut mettre un logo par défaut
+            flag1.src = 'https://flagcdn.com/w80/un.png';
+            flag2.src = 'https://flagcdn.com/w80/un.png';
         }
-        
-        select.value = matchId;
-        
-        // 2. Mettre à jour les drapeaux en haut
-        select.dispatchEvent(new Event('change'));
-
-        // 3. Cocher le bon prono
-        const radio = document.querySelector(`input[name="prediction"][value="${prediction}"]`);
-        if (radio) radio.checked = true;
-
-        // 4. Mode édition
-        let hiddenId = document.getElementById('editingBetId');
-        if (!hiddenId) {
-            hiddenId = document.createElement('input');
-            hiddenId.type = 'hidden';
-            hiddenId.name = 'betId';
-            hiddenId.id = 'editingBetId';
-            document.querySelector('form[action="/bet"]').appendChild(hiddenId);
-        }
-        hiddenId.value = betId;
-
-        // 5. Look du bouton
-        const submitBtn = document.querySelector('form[action="/bet"] button[type="submit"]');
-        submitBtn.innerText = "Mettre à jour mon pronostic";
-        submitBtn.style.backgroundColor = "#d97706"; // Orange/Jaune
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    });
+</script>
 </script>
 </body>
 </html>
