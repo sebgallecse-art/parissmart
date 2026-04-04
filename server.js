@@ -37,7 +37,7 @@ const Match = mongoose.model('Match', {
     code1: String, // ex: fr
     code2: String, // ex: de
     date: Date,
-	result: { type: String, default: null } // Sera '1', 'N' ou '2'
+	result: { type: String, default: null }, // Sera '1', 'N' ou '2'
     status: { type: String, default: 'open' } 
 });
 
@@ -210,6 +210,16 @@ app.post('/admin/match', async (req, res) => {
 app.post('/admin/match/delete/:id', async (req, res) => {
     await Match.findByIdAndDelete(req.params.id);
     res.redirect('back');
+});
+app.post('/admin/match/result', async (req, res) => {
+    // Sécurité : Vérifie si c'est bien l'admin (à adapter selon ton code)
+    if (!req.session.user || req.session.user.username !== 'ton-email-admin@mail.com') {
+        return res.status(403).send("Accès refusé");
+    }
+
+    const { matchId, result } = req.body;
+    await Match.findByIdAndUpdate(matchId, { result: result });
+    res.redirect('/admin'); // Redirige vers ta page admin
 });
 
 const PORT = process.env.PORT || 10000;
