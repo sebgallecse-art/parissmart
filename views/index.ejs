@@ -75,20 +75,24 @@
         // Filtrer les paris personnels
         const myBets = bets.filter(b => b.user === user.username);
         myBets.forEach(bet => { %>
-            <div class="bg-gray-900 border border-gray-800 p-5 rounded-3xl flex items-center justify-between shadow-lg hover:border-blue-900/30 transition-all">
-                
-                <div class="flex items-center gap-6">
-                    
-                    <div class="relative bg-gray-800 p-3 rounded-2xl w-24 flex flex-col items-center">
-                        <% if(bet.prediction === '1') { %>
-                            <img src="https://flagcdn.com/w80/<%= bet.code1 %>.png" class="w-16 rounded shadow-md mb-2">
-                        <% } else if(bet.prediction === '2') { %>
-                            <img src="https://flagcdn.com/w80/<%= bet.code2 %>.png" class="w-16 rounded shadow-md mb-2">
-                        <% } else { %>
-                            <span class="text-3xl mb-2">🤝</span>
-                        <% } %>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">Ton choix</span>
-                    </div>
+            <div class="relative bg-gray-800 p-3 rounded-2xl w-24 flex flex-col items-center">
+    <% 
+        // On détermine quel code pays utiliser selon le pari
+        let displayCode = (bet.prediction === '1') ? bet.code1 : (bet.prediction === '2' ? bet.code2 : null);
+    %>
+
+    <% if(displayCode) { %>
+        <img src="https://flagcdn.com/w80/<%= displayCode %>.png" 
+             class="w-16 rounded shadow-md mb-2"
+             onerror="this.src='https://flagcdn.com/w80/un.png'">
+    <% } else if(bet.prediction === 'N') { %>
+        <span class="text-3xl mb-2">🤝</span>
+    <% } else { %>
+        <img src="https://flagcdn.com/w80/un.png" class="w-16 rounded shadow-md mb-2">
+    <% } %>
+    
+    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">Ton choix</span>
+</div>
                     
                     <div class="flex-1">
                         <p class="text-2xl font-black text-white mb-1"><%= bet.teams %></p>
