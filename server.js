@@ -18,9 +18,9 @@ mongoose.connect(MONGO_URI)
 
 // 2. Modèles de données
 const User = mongoose.model('User', { 
-    username: { type: String, unique: true, required: true }, // Ce sera l'email
-    firstName: String, 
-    lastName: String, 
+    username: { type: String, unique: true, required: true }, 
+    firstName: { type: String, required: true }, // Ajoute required: true pour être sûr
+    lastName: { type: String, required: true }, 
     password: { type: String, required: true } 
 });
 
@@ -92,22 +92,20 @@ app.get('/login', (req, res) => res.render('login'));
 app.post('/register', async (req, res) => {
     try {
         const { email, firstName, lastName, password } = req.body;
-        
-        // On vérifie si l'utilisateur existe déjà
-        const existing = await User.findOne({ username: email.toLowerCase() });
-        if (existing) return res.send("Cet email est déjà pris.");
+        console.log("Données reçues :", req.body); // Regarde tes logs Render pour voir ça
 
         const newUser = new User({ 
             username: email.toLowerCase(), 
-            firstName: firstName,
-            lastName: lastName,
-            password: password 
+            firstName, 
+            lastName, 
+            password 
         });
 
         await newUser.save();
-        res.redirect('/'); // Redirige vers l'accueil (ou login)
+        res.redirect('/');
     } catch (err) {
-        res.status(500).send("Erreur lors de l'inscription");
+        console.error("ERREUR INSCRIPTION :", err); // <--- Très important pour débugger
+        res.status(500).send("Erreur lors de l'inscription : " + err.message);
     }
 });
 
