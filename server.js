@@ -18,7 +18,9 @@ mongoose.connect(MONGO_URI)
 
 // 2. Modèles de données
 const User = mongoose.model('User', { 
-    username: String, 
+    username: { type: String, unique: true, required: true }, // Ce sera l'email
+    firstName: String, 
+    lastName: String, 
     password: { type: String, required: true } 
 });
 
@@ -89,14 +91,21 @@ app.get('/login', (req, res) => res.render('login'));
 // Inscription
 app.post('/register', async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const existingUser = await User.findOne({ username });
-        if (existingUser) return res.send("Ce nom d'utilisateur est déjà pris.");
+        const { email, firstName, lastName, password } = req.body;
+        
+        // On vérifie si l'utilisateur existe déjà
+        const existing = await User.findOne({ username: email.toLowerCase() });
+        if (existing) return res.send("Cet email est déjà pris.");
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
+        const newUser = new User({ 
+            username: email.toLowerCase(), 
+            firstName: firstName,
+            lastName: lastName,
+            password: password 
+        });
+
         await newUser.save();
-        res.redirect('/login');
+        res.redirect('/'); // Redirige vers l'accueil (ou login)
     } catch (err) {
         res.status(500).send("Erreur lors de l'inscription");
     }
