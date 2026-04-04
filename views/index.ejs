@@ -44,7 +44,7 @@
                     <label class="cursor-pointer group">
                         <input type="radio" name="prediction" value="1" class="hidden peer" required>
                         <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
-							<img id="flagImg1" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
+							<img id="flag1" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
 						</div>
                     </label>
 
@@ -59,7 +59,7 @@
                     <label class="cursor-pointer group">
                         <input type="radio" name="prediction" value="2" class="hidden peer">
                         <div class="peer-checked:bg-blue-600 ... flex flex-col items-center">
-							<img id="flagImg2" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
+							<img id="flag2" src="https://flagcdn.com/w80/un.png" class="w-16 h-12 object-cover mb-2 rounded shadow-md">
 						</div>
                     </label>
                 </div>
@@ -129,26 +129,36 @@
 </section>
     </main>
     <script>
-    // Ce script s'exécute chez l'utilisateur
-    document.getElementById('matchSelect').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        
-        // On récupère les codes pays stockés dans les attributs data-
-        const c1 = selectedOption.getAttribute('data-c1');
-        const c2 = selectedOption.getAttribute('data-c2');
+    // 1. Gestion du changement de match (Drapeaux en haut)
+    const matchSelect = document.getElementById('matchSelect');
+    
+    if (matchSelect) {
+        matchSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            // On récupère les codes pays depuis les attributs data-
+            const c1 = selectedOption.getAttribute('data-c1');
+            const c2 = selectedOption.getAttribute('data-c2');
 
-        const flag1 = document.getElementById('flag1');
-        const flag2 = document.getElementById('flag2');
+            const img1 = document.getElementById('flag1');
+            const img2 = document.getElementById('flag2');
 
-        if (flag1 && flag2 && c1 && c2) {
-            flag1.src = "https://flagcdn.com/w80/" + c1.toLowerCase() + ".png";
-            flag2.src = "https://flagcdn.com/w80/" + c2.toLowerCase() + ".png";
-        }
-    });
+            if (img1 && img2 && c1 && c2) {
+                img1.src = "https://flagcdn.com/w80/" + c1.toLowerCase() + ".png";
+                img2.src = "https://flagcdn.com/w80/" + c2.toLowerCase() + ".png";
+            } else if (img1 && img2) {
+                // Si rien n'est sélectionné, on remet le logo ONU
+                img1.src = "https://flagcdn.com/w80/un.png";
+                img2.src = "https://flagcdn.com/w80/un.png";
+            }
+        });
+    }
 
-    // La fonction de modification (sans balises <% %> à l'intérieur !)
+    // 2. Fonction Modifier (Utilisée par tes boutons en bas)
     function editBet(betId, matchId, prediction, c1, c2) {
         const select = document.getElementById('matchSelect');
+        if (!select) return;
+
         let option = select.querySelector('option[value="' + matchId + '"]');
         
         if (!option) {
@@ -161,11 +171,13 @@
         }
         
         select.value = matchId;
+        // On déclenche manuellement le changement pour mettre à jour les drapeaux
         select.dispatchEvent(new Event('change'));
 
         const radio = document.querySelector('input[name="prediction"][value="' + prediction + '"]');
         if (radio) radio.checked = true;
 
+        // Gestion de l'ID caché pour le serveur
         let hiddenId = document.getElementById('editingBetId');
         if (!hiddenId) {
             hiddenId = document.createElement('input');
