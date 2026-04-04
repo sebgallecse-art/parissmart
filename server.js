@@ -129,14 +129,29 @@ app.get('/admin/:password', async (req, res) => {
     if (req.params.password !== secret) return res.status(403).send("Accès refusé.");
 
     try {
-        const allBets = await Bet.find();
-        const allMatches = await Match.find(); // CRUCIAL : On récupère les matchs !
+        const allBets = await Bet.find().lean(); // .lean() rend les données plus faciles à manipuler
+        const allMatches = await Match.find();
+        const allUsers = await User.find(); // On récupère tous les utilisateurs
+
+        // On enrichit chaque pari avec le nom et prénom de l'utilisateur
+        const betsWithNames = allBets.map(bet => {
+            const userData = allUsers.find(u => u.username === bet.user);
+            return {
+                ...bet,
+                // Si l'utilisateur est trouvé, on crée une chaîne "Prénom Nom", sinon on garde l'email
+                displayName: userData ? `${userData.firstName} ${userData.lastName}` : bet.user
+            };
+        });
+
         res.render('admin', { 
-            bets: allBets, 
+            bets: betsWithNames, // On envoie les paris enrichis
             matches: allMatches, 
             adminPass: req.params.password 
         });
-    } catch (err) { res.status(500).send("Erreur serveur"); }
+    } catch (err) { 
+        console.error(err);
+        res.status(500).send("Erreur serveur"); 
+    }
 });
 
 app.post('/admin/match', async (req, res) => {
