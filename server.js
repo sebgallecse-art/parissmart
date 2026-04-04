@@ -36,7 +36,8 @@ const Match = mongoose.model('Match', {
     teams: String, 
     code1: String, // ex: fr
     code2: String, // ex: de
-    date: Date, 
+    date: Date,
+	result: { type: String, default: null } // Sera '1', 'N' ou '2'
     status: { type: String, default: 'open' } 
 });
 
