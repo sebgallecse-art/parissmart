@@ -128,32 +128,56 @@
     </div>
 </section>
     </main>
-
     <script>
-    <script>
+    // Ce script s'exécute chez l'utilisateur
     document.getElementById('matchSelect').addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
+        
+        // On récupère les codes pays stockés dans les attributs data-
         const c1 = selectedOption.getAttribute('data-c1');
         const c2 = selectedOption.getAttribute('data-c2');
 
         const flag1 = document.getElementById('flag1');
         const flag2 = document.getElementById('flag2');
 
-        if (c1 && c2) {
-            // On met à jour les images avec les codes pays
-            flag1.src = `https://flagcdn.com/w80/${c1.toLowerCase()}.png`;
-            flag2.src = `https://flagcdn.com/w80/${c2.toLowerCase()}.png`;
-            
-            // On affiche les drapeaux (au cas où ils étaient cachés)
-            flag1.style.display = 'block';
-            flag2.style.display = 'block';
-        } else {
-            // Si pas de sélection, on peut mettre un logo par défaut
-            flag1.src = 'https://flagcdn.com/w80/un.png';
-            flag2.src = 'https://flagcdn.com/w80/un.png';
+        if (flag1 && flag2 && c1 && c2) {
+            flag1.src = "https://flagcdn.com/w80/" + c1.toLowerCase() + ".png";
+            flag2.src = "https://flagcdn.com/w80/" + c2.toLowerCase() + ".png";
         }
     });
-</script>
+
+    // La fonction de modification (sans balises <% %> à l'intérieur !)
+    function editBet(betId, matchId, prediction, c1, c2) {
+        const select = document.getElementById('matchSelect');
+        let option = select.querySelector('option[value="' + matchId + '"]');
+        
+        if (!option) {
+            option = document.createElement('option');
+            option.value = matchId;
+            option.text = "Modifier ce match...";
+            option.setAttribute('data-c1', c1);
+            option.setAttribute('data-c2', c2);
+            select.add(option);
+        }
+        
+        select.value = matchId;
+        select.dispatchEvent(new Event('change'));
+
+        const radio = document.querySelector('input[name="prediction"][value="' + prediction + '"]');
+        if (radio) radio.checked = true;
+
+        let hiddenId = document.getElementById('editingBetId');
+        if (!hiddenId) {
+            hiddenId = document.createElement('input');
+            hiddenId.type = 'hidden';
+            hiddenId.name = 'betId';
+            hiddenId.id = 'editingBetId';
+            document.querySelector('form').appendChild(hiddenId);
+        }
+        hiddenId.value = betId;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 </script>
 </body>
 </html>
