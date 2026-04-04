@@ -115,16 +115,21 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        const user = await User.findOne({ username });
+        // On force la recherche en minuscules pour correspondre à l'inscription
+        const user = await User.findOne({ 
+            username: username.toLowerCase(), 
+            password: password 
+        });
 
-        if (user && await bcrypt.compare(password, user.password)) {
-            req.session.user = { id: user._id, username: user.username };
+        if (user) {
+            req.session.user = user;
             res.redirect('/');
         } else {
-            res.send("Identifiants incorrects. <a href='/login'>Réessayer</a>");
+            // C'est ce message que tu vois
+            res.send("Identifiants incorrects. <a href='/'>Réessayer</a>");
         }
     } catch (err) {
-        res.status(500).send("Erreur lors de la connexion");
+        res.status(500).send("Erreur serveur");
     }
 });
 
